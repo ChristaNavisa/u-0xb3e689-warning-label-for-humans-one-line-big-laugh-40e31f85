@@ -21,19 +21,28 @@ const LINE =
 const OUT_DIR = process.env.OUTPUT_DIR ?? "/output";
 const OUT_PATH = join(OUT_DIR, "entry.txt");
 
-function main(): void {
-  const chars = [...LINE].length;
+function validateLine(line: string): number {
+  const chars = [...line].length;
   if (chars < 1 || chars > 160) {
     throw new Error(`entry must be 1-160 characters, got ${chars}`);
   }
-  if (LINE.includes("\n") || LINE.includes("\r")) {
+  if (line.includes("\n") || line.includes("\r")) {
     throw new Error("entry must be a single line");
   }
-  if (LINE.trim().length === 0) {
+  if (line.trim().length === 0) {
     throw new Error("entry must not be only whitespace");
   }
-  mkdirSync(OUT_DIR, { recursive: true });
-  writeFileSync(OUT_PATH, LINE + "\n", "utf8");
+  return chars;
+}
+
+function writeEntry(dir: string, path: string, text: string): void {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path, text, "utf8");
+}
+
+function main(): void {
+  const chars = validateLine(LINE);
+  writeEntry(OUT_DIR, OUT_PATH, LINE + "\n");
   console.log(`wrote ${OUT_PATH} (${chars} characters)`);
 }
 
